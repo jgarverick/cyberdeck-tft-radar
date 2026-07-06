@@ -64,18 +64,25 @@ bash -c "$(wget -nv -O - https://github.com/wiedehopf/tar1090/raw/master/install
 echo "== 5/5  radar_feed service =="
 mkdir -p "$FEED_DIR"
 cp "$(dirname "$0")/radar_feed.py" "$FEED_DIR/"
-sed -i "s/^HOME_LAT = .*/HOME_LAT = $HOME_LAT/" "$FEED_DIR/radar_feed.py"
-sed -i "s/^HOME_LON = .*/HOME_LON = $HOME_LON/" "$FEED_DIR/radar_feed.py"
 
+# Create systemd service with proper environment variables
+# SOURCE_URL uses tar1090's data endpoint; SOURCE_JSON falls back to readsb's JSON file
 cat > /etc/systemd/system/cyberdeck-radar.service <<EOF
 [Unit]
 Description=Cyberdeck radar feed
 After=network.target readsb.service
 
 [Service]
+Type=simple
 ExecStart=/usr/bin/python3 $FEED_DIR/radar_feed.py
 Restart=always
+RestartSec=10
 User=root
+Environment="HOME_LAT=$HOME_LAT"
+Environment="HOME_LON=$HOME_LON"
+Environment="SOURCE_URL=http://localhost:8081/data/aircraft.json"
+Environment="SOURCE_JSON=/run/readsb/aircraft.json"
+Environment="PORT=8090"
 
 [Install]
 WantedBy=multi-user.target
