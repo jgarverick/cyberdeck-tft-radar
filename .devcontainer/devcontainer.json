@@ -1,0 +1,36 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/alpine
+{
+	"name": "Alpine",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"mounts": [
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"platformio.platformio-ide",
+				"ms-azuretools.vscode-containers"
+			]
+		}
+	},
+	"postStartCommand": "sudo sh -c 'if [ -S /var/run/docker.sock ]; then SOCK_GID=$(stat -c %g /var/run/docker.sock); SOCK_GROUP=$(awk -F: -v gid=\"$SOCK_GID\" \"\\$3==gid{print \\$1; exit}\" /etc/group); if [ -z \"$SOCK_GROUP\" ]; then addgroup -g \"$SOCK_GID\" dockersock; SOCK_GROUP=dockersock; fi; addgroup vscode \"$SOCK_GROUP\" 2>/dev/null || true; fi'"
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "uname -a",
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// "remoteUser": "root"
+}

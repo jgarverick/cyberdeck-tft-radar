@@ -1,0 +1,23 @@
+services:
+  radar:
+    build: .
+    container_name: cyberdeck-radar
+    restart: unless-stopped
+    ports:
+      - "8090:8090"
+    environment:
+      HOME_LAT: "42.9017"
+      HOME_LON: "-78.4919"
+      MAX_NM: "40"
+      MAX_AC: "30"
+      MAX_AGE: "60"
+      # Set to 0 when using SOURCE_URL/SOURCE_JSON from an external decoder.
+      ENABLE_DECODER: "${ENABLE_DECODER:-0}"
+      # Example: http://192.168.1.50/tar1090/data/aircraft.json
+      SOURCE_URL: "${SOURCE_URL:-http://host.docker.internal:8081/aircraft.json}"
+      # Optional file source (bind-mounted aircraft.json path in container).
+      SOURCE_JSON: "${SOURCE_JSON:-/run/dump1090-mutability/aircraft.json}"
+    # Required only when ENABLE_DECODER=1 and an RTL-SDR dongle is attached to host.
+    privileged: true
+    devices:
+      - "/dev/bus/usb:/dev/bus/usb"
