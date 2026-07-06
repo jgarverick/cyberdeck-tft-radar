@@ -63,7 +63,18 @@ bash -c "$(wget -nv -O - https://github.com/wiedehopf/tar1090/raw/master/install
 
 echo "== 5/5  radar_feed service =="
 mkdir -p "$FEED_DIR"
-cp "$(dirname "$0")/radar_feed.py" "$FEED_DIR/"
+
+# Find radar_feed.py - try script directory first, then current directory
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+if [[ -f "$SCRIPT_DIR/radar_feed.py" ]]; then
+  cp "$SCRIPT_DIR/radar_feed.py" "$FEED_DIR/"
+elif [[ -f "./radar_feed.py" ]]; then
+  cp "./radar_feed.py" "$FEED_DIR/"
+else
+  echo "ERROR: radar_feed.py not found in script directory or current directory"
+  echo "Please ensure you're running this script from the radar repo directory"
+  exit 1
+fi
 
 # Create systemd service with proper environment variables
 # SOURCE_URL uses tar1090's data endpoint; SOURCE_JSON falls back to readsb's JSON file
