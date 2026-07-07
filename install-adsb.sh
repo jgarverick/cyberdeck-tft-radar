@@ -64,36 +64,17 @@ bash -c "$(wget -nv -O - https://github.com/wiedehopf/tar1090/raw/master/install
 echo "== 5/5  radar_feed service =="
 mkdir -p "$FEED_DIR"
 
-# Find radar_feed.py with multiple search strategies
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SEARCH_PATHS=(
-  "$SCRIPT_DIR/radar_feed.py"
-  "./radar_feed.py"
-  "../radar_feed.py"
-  "$(pwd)/radar_feed.py"
-)
+# Download radar_feed.py from GitHub
+GITHUB_URL="https://raw.githubusercontent.com/jgarverick/cyberdeck-tft-radar/main/radar_feed.py"
+echo "Downloading radar_feed.py from GitHub..."
 
-RADAR_FEED_PATH=""
-for path in "${SEARCH_PATHS[@]}"; do
-  if [[ -f "$path" ]]; then
-    RADAR_FEED_PATH="$path"
-    break
-  fi
-done
-
-if [[ -z "$RADAR_FEED_PATH" ]]; then
-  echo "ERROR: Could not find radar_feed.py"
-  echo "Script dir: $SCRIPT_DIR"
-  echo "Current dir: $(pwd)"
-  echo "Searched:"
-  for path in "${SEARCH_PATHS[@]}"; do
-    echo "  - $path"
-  done
+if ! curl -fsSL "$GITHUB_URL" -o "$FEED_DIR/radar_feed.py"; then
+  echo "ERROR: Failed to download radar_feed.py from $GITHUB_URL"
   exit 1
 fi
 
-echo "Found radar_feed.py at: $RADAR_FEED_PATH"
-cp "$RADAR_FEED_PATH" "$FEED_DIR/"
+chmod +x "$FEED_DIR/radar_feed.py"
+echo "radar_feed.py downloaded and installed to $FEED_DIR/"
 
 # Create systemd service with proper environment variables
 # SOURCE_URL uses tar1090's data endpoint; SOURCE_JSON falls back to readsb's JSON file
